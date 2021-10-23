@@ -1,0 +1,35 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t zhelazny/react-test -f ./frontend/Dockerfile.dev ./frontend
+
+script:
+  - docker run zhelazny/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t zhelazny/multi-frontend ./frontend
+  - docker build -t zhelazny/multi-nginx ./nginx
+  - docker build -t zhelazny/multi-api ./api
+  - docker build -t zhelazny/multi-worker ./worker
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push them to docker hub
+  - docker push zhelazny/multi-frontend
+  - docker push zhelazny/multi-nginx
+  - docker push zhelazny/multi-api
+  - docker push zhelazny/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: us-west-1
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-us-west-1-306476627547
+  bucket_path: docker-multi
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: $AWS_SECRET_KEY
