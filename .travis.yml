@@ -3,23 +3,24 @@ services:
   - docker
 
 before_install:
-  - docker build -t zhelazny/udemy-dkcg-frontend-dev -f ./frontend/Dockerfile.dev ./frontend
+  - docker build -t zhelazny/udemy-dkcg-docker-multi-frontend-dev -f ./frontend/Dockerfile.dev ./frontend
 
 script:
-  - docker run zhelazny/udemy-dkcg-frontend-dev npm test -- --coverage
+  - docker run zhelazny/udemy-dkcg-docker-multi-frontend-dev npm test -- --coverage
 
 after_success:
-  - docker build -t zhelazny/udemy-dkcg-multi-frontend ./frontend
-  - docker build -t zhelazny/udemy-dkcg-multi-nginx ./nginx
-  - docker build -t zhelazny/udemy-dkcg-multi-api ./api
-  - docker build -t zhelazny/udemy-dkcg-multi-worker ./worker
+  # Build and tag images
+  - docker build -t zhelazny/udemy-dkcg-docker-multi-frontend ./frontend
+  - docker build -t zhelazny/udemy-dkcg-docker-multi-nginx ./nginx
+  - docker build -t zhelazny/udemy-dkcg-docker-multi-api ./api
+  - docker build -t zhelazny/udemy-dkcg-docker-multi-worker ./worker
   # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # Take those images and push them to docker hub
-  - docker push zhelazny/udemy-dkcg-multi-frontend
-  - docker push zhelazny/udemy-dkcg-multi-nginx
-  - docker push zhelazny/udemy-dkcg-multi-api
-  - docker push zhelazny/udemy-dkcg-multi-worker
+  - docker push zhelazny/udemy-dkcg-docker-multi-frontend
+  - docker push zhelazny/udemy-dkcg-docker-multi-nginx
+  - docker push zhelazny/udemy-dkcg-docker-multi-api
+  - docker push zhelazny/udemy-dkcg-docker-multi-worker
 
 # deploy:
 #   provider: elasticbeanstalk

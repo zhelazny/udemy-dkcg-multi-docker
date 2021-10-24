@@ -1,10 +1,9 @@
 version: '3'
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:9-alpine
     environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
-      POSTGRES_DB: "db"
+      - POSTGRES_HOST_AUTH_METHOD=trust
   redis:
     image: 'redis:latest'
   nginx:
@@ -22,13 +21,13 @@ services:
       - /app/node_modules
       - ./api:/app
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PGUSER=postgres
-      - PGHOST=postgres
-      - PGDATABASE=db
-      - PGPASSWORD=postgres_password
-      - PGPORT=5432
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
   frontend:
     build:
       dockerfile: Dockerfile.dev
@@ -38,8 +37,8 @@ services:
       - ./frontend:/app
   worker:
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     build:
       dockerfile: Dockerfile.dev
       context: ./worker
